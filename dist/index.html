@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:,">
+    <link href="https://fonts.googleapis.com/css?family=PT+Sans" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" media="screen" href="style.css" />
+    <script src="https://kit.fontawesome.com/80f5cec321.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+        integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+        crossorigin="anonymous"></script>
+    <link rel="icon" type="image/x-icon" href="image.png">
+    <script src="./jquery/dist/jquery.js" defer></script>
+    <script src="./handlebars/dist/handlebars.js" defer></script>
+    <script src="Render.js" defer></script>
+    <script src="utils.js" defer></script>
+    <script src="main.js" defer></script>
+    <title>My Recipes</title>
+</head>
+
+<body>
+    <nav class="navbar bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="logo.jpg" alt="Logo" width="30" height="30"
+                    class="d-inline-block align-text-top">
+                Expense calculator
+            </a>
+        </div>
+    </nav>
+
+
+
+    <div id="expenses-container"></div>
+
+    <script id="recipes-template" type="text/x-handlebars-template">
+
+        <button onclick="navigation_prev()">Previous</button>
+        {{#each pages}}
+        <button onclick="navigation_to_page({{this}})">{{this}}</button>
+        {{/each}}
+        
+        <button onclick="navigation_next()">Next</button>
+    {{#if recipes}}
+    <h4>Found {{length}} recipe/s</h4>
+    <h5>You are viewing results from {{min}} to {{max}} </h5>
+    <div class="recipes">
+
+    
+        {{#each recipes}}
+            <div class="recipe" data-id="{{idMeal}}">
+                <div class="titlemoji">
+                    <a class="title" href="{{href}}"><b>{{title}} </a></b>
+                    <div class="emoji"> {{#if gluten}}<i title="Has Gluten" class="fa-solid fa-wheat-awn"></i> {{/if}}
+                    {{#if vegeterian}}<i title="Vegeterian" class="fa-solid fa-leaf"></i> {{/if}}
+                    {{#if dairy}}<i title="Has dairy" class="fa-solid fa-bottle-droplet"></i> {{/if}}
+                    </div>
+                </div>
+                <img src="{{gif}}" alt="Picture of {{title}}" title="Picture of {{title}}">
+                    <b>Ingredients:</b>
+                    <ul>
+                    {{#each ingredients}}
+                        <li>{{this}}</li>
+                    {{/each}}
+                </ul>
+                <div><b>Chef name:</b> {{chef}}</div>
+                <div><b>Resturants:</b> {{resturants}}</div>
+                <div><b>Rating:</b> <div class="Stars" style="--rating: {{rating}};" title="Rating of this recipe is {{rating}} out of 5."></div></div>
+                <a class="share" href="{{title}}">Share this recipe</a>
+                <!-- <a href="mailto:?subject=Check%20out%20this%20recipe!{{title}}&body=You%20can%20see%20this%20recipe%20in%20this%20video%3A{{ingredients.[0]}}">Share this recipe</a> -->
+            </div>
+        {{/each}}
+    </div>
+    {{else}}
+    <div class="no-result">
+        <h3>No recipe found</h3>
+    </div>
+    {{/if}}
+    </script>
+
+</body>
+
+</html>
