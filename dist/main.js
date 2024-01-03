@@ -1,109 +1,144 @@
-const renderer = new Renderer()
-let page = 0
-let length = 0
-let maxPage = 0
-let search_url = ""
 
-const searchIngredient = function () {
-    const ingredient = ingredientInput.val()
-    if (!ingredient) {
-        alert(ingredientError)
+const renderer = new Renderer()
+const xValues = ["fun", "food", "rent", "bills", "misc"];
+const barColors = [
+    "#FED130",
+    "#FE3F61",
+    "#FD7BD4",
+    "#FEAA36",
+    "#00C9E9"
+];
+
+function renderAll() {
+    const expenses = $.get("/expenses")
+    const groups = xValues.map(group => $.get("/expenses/" + group + "?total=true"))
+    groups.push(expenses)
+    Promise.all(groups).then((results) => {
+        let [fun, food, rent, bills, misc, expences] = results
+        const yValues = [fun.total, food.total, rent.total, bills.total, misc.total];
+        expences.total = yValues.reduce((a, b) => a + b, 0).toFixed(2)
+        expences.groups = xValues
+        renderer.renderExpenses(expences)
+        console.log(expences)
+        new Chart("myChart", {
+            type: "doughnut",
+            data: {
+                labels: xValues,
+                datasets: [{
+                    backgroundColor: barColors,
+                    data: yValues
+                }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: "Expenses"
+                }
+            }
+        });
+        renderer.renderAddExpense({ groups: xValues })
+
+    })
+}
+
+function filterDates() {
+    const d1 = $("#start-date").val();
+    const d2 = $("#end-date").val();
+    let url = "/expenses"
+    let totalQuery = "?total=true"
+    if (d1 != "") {
+        url += "?d1=" + d1
+        totalQuery += "&d1="+d1
+        if (d2 != "") {
+            url += "&d2=" + d2
+            totalQuery += "&d2="+d2
+        }
+    }
+    console.log(url)
+    const expenses = $.get(url)
+    const groups = xValues.map(group => $.get("/expenses/" + group + totalQuery ))
+    groups.push(expenses)
+    Promise.all(groups).then((results) => {
+        let [fun, food, rent, bills, misc, expences] = results
+        const yValues = [fun.total, food.total, rent.total, bills.total, misc.total];
+        expences.total = yValues.reduce((a, b) => a + b, 0).toFixed(2)
+        expences.groups = xValues
+        console.log(expences)
+        renderer.renderExpenses(expences)
+        new Chart("myChart", {
+            type: "doughnut",
+            data: {
+                labels: xValues,
+                datasets: [{
+                    backgroundColor: barColors,
+                    data: yValues
+                }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: "Expenses"
+                }
+            }
+        });
+        renderer.renderAddExpense({ groups: xValues })
+
+    })
+
+}
+function filterGroup() {
+    const group = $("#group").find(":selected").text()
+    let url = "/expenses/"+group
+    let totalQuery = "?total=true"
+    const expenses = $.get(url)
+    const groups = $.get("/expenses/" + group + totalQuery )
+    Promise.all([groups,expenses]).then((results) => {
+        let [groups, expences] = results
+        const yValues = [groups.total];
+        expences.total = groups.total.toFixed(2)
+        expences.groups = xValues
+        renderer.renderExpenses(expences)
+        new Chart("myChart", {
+            type: "doughnut",
+            data: {
+                labels: [group],
+                datasets: [{
+                    backgroundColor: barColors,
+                    data: yValues
+                }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: "Expenses"
+                }
+            }
+        });
+        renderer.renderAddExpense({ groups: xValues })
+
+    })
+
+}
+
+function addExpense() {
+    const date = $("#date").val();
+    const amount = $("#amount").val();
+    const item = $("#item").val();
+    const group = $("#group").find(":selected").text()
+    let expense
+    if (date === '') {
+        expense = { amount, item, group }
     }
     else {
-        const dairy = dairyCheckBox.prop('checked');
-        const gluten = glutenCheckBox.prop('checked');
-        const vegeterian = vegeterianCheckBox.prop('checked');
-        const recipesURL = `/recipes/${ingredient}?dairyFree=${dairy}&glutenFree=${gluten}&vegeterian=${vegeterian}`
-        search_url = recipesURL
-        $.get(recipesURL)
-            .then((recipes) => {
-                console.log(recipes)
-                const recipes_page = recipes.recipes
-                page = 0
-                length = recipes.recipesNum
-                maxPage = recipes.maxPage
-                const pages =arrayRange(1,maxPage,1)
-                renderer.renderRecipes(recipes_page.slice(0,MAX_RECIPES_IN_PAGE),length,page,pages)
-            })
-            .catch((error) => {
-                console.log(error)
-                alert(error.responseJSON.Error)
-            })
+        expense = { date, amount, item, group }
     }
+    $.post("/expense", expense).then((result) => {
+
+
+    })
 }
-recipesContainer.on("click", ".share", function(){
-    const ahref = $(this).siblings(".titlemoji").find(".title")
-    console.log(ahref)
-    const youtube_url = ahref.attr('href').replace("?", "%3F");
-    const url = `mailto:?subject=Check%20out%20this%20recipe! ${ahref.text()}&body=You%20can%20see%20this%20recipe%20in%20this%20video%3A ${youtube_url}`
-    $(this).attr('href',url)
-})
+renderAll()
 
 
-recipesContainer.on("click", "img", function () {
-    const ingredient = $($(this).siblings("ul").children()[0]).text()
-    alert(ingredient)
-})
-
-const navigation_next = function(){
-    if(maxPage > page+1)
-    {
-        page++;
-        const url = search_url+"&page="+page
-        $.get(url)
-            .then((recipes) => {
-                console.log(recipes)
-                const recipes_page = recipes.recipes
-                const pages =arrayRange(1,maxPage,1)
-                renderer.renderRecipes(recipes_page.slice(0,MAX_RECIPES_IN_PAGE),length,page,pages)
-            })
-            .catch((error) => {
-                console.log(error)
-                alert(error.responseJSON.Error)
-            })
-        
-    }
-
-    
-}
-const navigation_prev = function(){
-    if(page > 0){
-        page--;
-        const url = search_url+"&page="+page
-        $.get(url)
-            .then((recipes) => {
-                console.log(recipes)
-                const recipes_page = recipes.recipes
-                const pages =arrayRange(1,maxPage,1)
-                renderer.renderRecipes(recipes_page.slice(0,MAX_RECIPES_IN_PAGE), length ,page, pages)
-            })
-            .catch((error) => {
-                console.log(error)
-                alert(error.responseJSON.Error)
-            })
-        
-    }
-}
-
-const navigation_to_page= function(page_number){
-    page = Number(page_number) - 1
-    console.log(page)
-    if(page >= 0 && maxPage > page){
-        const url = search_url+"&page="+page
-        $.get(url)
-            .then((recipes) => {
-                console.log(recipes)
-                const recipes_page = recipes.recipes
-                const pages =arrayRange(1,maxPage,1)                
-                renderer.renderRecipes(recipes_page.slice(0,MAX_RECIPES_IN_PAGE), length ,page, pages)
-            })
-            .catch((error) => {
-                console.log(error)
-                alert(error.responseJSON.Error)
-            })
-        
-    }
-    
-}
 
 

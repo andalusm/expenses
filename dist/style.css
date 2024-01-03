@@ -1,0 +1,17 @@
+#myChart {
+    width: 100%;
+    max-width: 250px;
+    max-height: 250px;
+    display:initial !important
+}
+
+.sticky{
+    position: sticky;
+    top:0;
+    z-index:10;
+    position: -webkit-sticky;
+}
+
+.text-dark.active{
+    color: green !important;
+}
