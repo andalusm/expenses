@@ -9,6 +9,7 @@
       rel="stylesheet"
     />
     <link href="./bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet" />
     <script
       src="https://kit.fontawesome.com/80f5cec321.js"
       crossorigin="anonymous"
@@ -95,7 +96,7 @@
                 </div>
                 <div class="mb-3">
                   <label
-                    for="recipient-name"
+                    for="group"
                     class="col-form-label"
                   >Category:</label>
                   <select
@@ -143,7 +144,21 @@
               </div>
 
             </div>
-            <canvas class="mt-4" id="myChart"></canvas></div>
+            <canvas class="mt-4" id="myChart"></canvas>
+            <div class="row">
+              <h2>Top spending category:</h2>
+              
+                {{#each maxGroup}}
+                  <div class="col-sm-4">
+                    <i class="fa-solid {{icon}}" style="font-size: 2rem;"></i>
+                    <h4>${{total}}</h4>
+                    <h6>{{name}}</h6>
+                  </div>
+                {{/each}}
+
+              
+            </div>
+          </div>
           <div class="col-sm-4" style="overflow-y:scroll;height:90vh ;">
             <div
               style="position: sticky; top:0; z-index:10; position: -webkit-sticky;"
@@ -183,9 +198,9 @@
                 >
                   <div class="container-fluid">
                     <form onsubmit="filterDates()">
-                      <label for="date" class="col-form-label">Start Date:</label>
+                      <label for="start-date" class="col-form-label">Start Date:</label>
                       <input type="date" class="form-control" id="start-date" />
-                      <label for="date" class="col-form-label">End Date:</label>
+                      <label for="end-date" class="col-form-label">End Date:</label>
                       <input type="date" class="form-control" id="end-date" />
                       <input
                         type="submit"
@@ -202,28 +217,28 @@
                   aria-labelledby="nav-profile-tab"
                   tabindex="0"
                 >
-                   <form onsubmit="filterGroup()">
-                      <label
-                        for="recipient-name"
-                        class="col-form-label"
-                      >Category:</label>
-                      <select
-                        id="group"
-                        class="form-select"
-                        aria-label="Default select example"
-                        required
-                      >
-                        <option value="" selected>choose a category</option>
-                        {{#each groups}}
-                          <option value="{{this}}">{{this}}</option>
-                        {{/each}}
-                      </select>
-                      <input
-                        type="submit"
-                        class="btn btn-success"
-                        value="Filter"
-                      />
-                    </form>
+                  <form onsubmit="filterGroup()">
+                    <label
+                      for="group"
+                      class="col-form-label"
+                    >Category:</label>
+                    <select
+                      id="group"
+                      class="form-select"
+                      aria-label="Default select example"
+                      required
+                    >
+                      <option value="" selected>choose a category</option>
+                      {{#each groups}}
+                        <option value="{{this}}">{{this}}</option>
+                      {{/each}}
+                    </select>
+                    <input
+                      type="submit"
+                      class="btn btn-success"
+                      value="Filter"
+                    />
+                  </form>
                 </div>
               </div>
 
@@ -269,7 +284,6 @@
     </script>
 
     <script src="Render.js" defer></script>
-    <script src="utils.js" defer></script>
     <script src="main.js" defer></script>
   </body>
 </html>

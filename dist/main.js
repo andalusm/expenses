@@ -1,6 +1,6 @@
-
 const renderer = new Renderer()
 const xValues = ["fun", "food", "rent", "bills", "misc"];
+const icons = ["fa-futbol", "fa-utensils", "fa-house", "fa-money-bill-wave", "fa-icons"];
 const barColors = [
     "#FED130",
     "#FE3F61",
@@ -18,6 +18,7 @@ function renderAll() {
         const yValues = [fun.total, food.total, rent.total, bills.total, misc.total];
         expences.total = yValues.reduce((a, b) => a + b, 0).toFixed(2)
         expences.groups = xValues
+        expences.maxGroup = getThreeMaxGroups(yValues,xValues)
         renderer.renderExpenses(expences)
         console.log(expences)
         new Chart("myChart", {
@@ -63,6 +64,7 @@ function filterDates() {
         const yValues = [fun.total, food.total, rent.total, bills.total, misc.total];
         expences.total = yValues.reduce((a, b) => a + b, 0).toFixed(2)
         expences.groups = xValues
+        expences.maxGroup = getThreeMaxGroups(yValues,xValues)
         console.log(expences)
         renderer.renderExpenses(expences)
         new Chart("myChart", {
@@ -96,8 +98,11 @@ function filterGroup() {
         let [groups, expences] = results
         const yValues = [groups.total];
         expences.total = groups.total.toFixed(2)
-        expences.groups = xValues
+        const icon = [icon[xValues.findIndex(group)]]
+        expences.groups = [group]
+        expences.maxGroup = getThreeMaxGroups(yValues,xValues)
         renderer.renderExpenses(expences)
+        
         new Chart("myChart", {
             type: "doughnut",
             data: {
@@ -118,6 +123,21 @@ function filterGroup() {
 
     })
 
+}
+
+function getThreeMaxGroups(GroupTotal, GroupName){
+    maxGroups =[]
+    
+    for (i in GroupTotal){
+        const group = {total:GroupTotal[i].toFixed(2), name:GroupName[i], icon:icons[i]}
+        maxGroups.push(group)
+    }
+    maxGroups.sort((a, b) => {
+        return a.total - b.total;
+    });
+    console.log(maxGroups)
+    console.log(maxGroups.slice(0,3))
+    return maxGroups.slice(0,3)
 }
 
 function addExpense() {
