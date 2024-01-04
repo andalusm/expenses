@@ -1,6 +1,6 @@
 const renderer = new Renderer()
 const xValues = ["fun", "food", "rent", "bills", "misc"];
-const icons = ["fa-futbol", "fa-utensils", "fa-house", "fa-money-bill-wave", "fa-icons"];
+const logos = ["fa-futbol", "fa-utensils", "fa-house", "fa-money-bill-wave", "fa-icons"];
 const barColors = [
     "#FED130",
     "#FE3F61",
@@ -89,18 +89,21 @@ function filterDates() {
 
 }
 function filterGroup() {
-    const group = $("#group").find(":selected").text()
+    const group = $("#group-filter").find(":selected").text()
     let url = "/expenses/"+group
+    console.log(url)
     let totalQuery = "?total=true"
     const expenses = $.get(url)
     const groups = $.get("/expenses/" + group + totalQuery )
     Promise.all([groups,expenses]).then((results) => {
+        console.log("Oppop")
         let [groups, expences] = results
         const yValues = [groups.total];
         expences.total = groups.total.toFixed(2)
-        const icon = [icon[xValues.findIndex(group)]]
+        const icon = [logos[xValues.findIndex(c=> c === group)]]
         expences.groups = [group]
-        expences.maxGroup = getThreeMaxGroups(yValues,xValues)
+        expences.maxGroup = getThreeMaxGroups(yValues,[group],[icon])
+        console.log(expences)
         renderer.renderExpenses(expences)
         
         new Chart("myChart", {
@@ -122,14 +125,15 @@ function filterGroup() {
         renderer.renderAddExpense({ groups: xValues })
 
     })
+   
 
 }
 
-function getThreeMaxGroups(GroupTotal, GroupName){
+function getThreeMaxGroups(groupTotal, groupName, icons = logos){
     maxGroups =[]
     
-    for (i in GroupTotal){
-        const group = {total:GroupTotal[i].toFixed(2), name:GroupName[i], icon:icons[i]}
+    for (i in groupTotal){
+        const group = {total:groupTotal[i].toFixed(2), name:groupName[i], icon:icons[i]}
         maxGroups.push(group)
     }
     maxGroups.sort((a, b) => {
