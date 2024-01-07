@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 // Mongoose setup
 const mongoose = require('mongoose')
-mongoose.connect("mongodb://127.0.0.1:27017/expensesDB", {//TODO : Change name of database
+mongoose.connect("mongodb://127.0.0.1:27017/expensesDB", {
     useNewUrlParser: true,
 }).catch((err) => console.log(err))
 

@@ -33,7 +33,6 @@ class ExpensesController {
         })
     }
     getExpensesBetweenDates(date1, date2) {
-        console.log(date1, date2)
         return Expense.find({ date:{$gt: date1, $lt: date2} }).sort({ date: -1 }).then((expenses) => {
             return expenses;
         })

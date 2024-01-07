@@ -78,8 +78,8 @@
                 aria-label="Close"
               ></button>
             </div>
+              <form onsubmit="addExpense();return false">
             <div class="modal-body">
-              <form onsubmit="addExpense()">
                 <div class="mb-3">
                   <label for="item" class="col-form-label">Item:</label>
                   <input type="text" class="form-control" id="item" required />
@@ -114,6 +114,7 @@
                   <label for="date" class="col-form-label">Date:</label>
                   <input type="date" class="form-control" id="date" />
                 </div>
+                </div>
                 <div class="modal-footer">
                   <button
                     type="button"
@@ -144,18 +145,17 @@
 
             </div>
             <canvas class="mt-4" id="myChart"></canvas>
-            <div class="row">
+            <div class="row mt-5">
               <h2>Top spending category:</h2>
-              
-                {{#each maxGroup}}
-                  <div class="col-sm-4">
-                    <i class="fa-solid {{icon}}" style="font-size: 2rem;"></i>
-                    <h4>${{total}}</h4>
-                    <h6>{{name}}</h6>
-                  </div>
-                {{/each}}
 
-              
+              {{#each maxGroup}}
+                <div class="col-sm-4">
+                  <i class="fa-solid {{icon}}" style="font-size: 2rem;"></i>
+                  <h4>${{total}}</h4>
+                  <h6>{{name}}</h6>
+                </div>
+              {{/each}}
+
             </div>
           </div>
           <div class="col-sm-4" style="overflow-y:scroll;height:90vh ;">
@@ -196,7 +196,7 @@
                   tabindex="0"
                 >
                   <div class="container-fluid">
-                    <form onsubmit="filterDates()">
+                    <form onsubmit="filterDates();return false">
                       <label for="start-date" class="col-form-label">Start Date:</label>
                       <input type="date" class="form-control" id="start-date" />
                       <label for="end-date" class="col-form-label">End Date:</label>
@@ -216,7 +216,7 @@
                   aria-labelledby="nav-profile-tab"
                   tabindex="0"
                 >
-                  <form onsubmit="filterGroup()">
+                  <form onsubmit="filterGroup();return false">
                     <label
                       for="group-filter"
                       class="col-form-label"
@@ -283,6 +283,7 @@
     </script>
 
     <script src="Render.js" defer></script>
+    <script src="utils.js" defer></script>
     <script src="main.js" defer></script>
   </body>
 </html>

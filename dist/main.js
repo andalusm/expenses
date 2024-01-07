@@ -1,44 +1,10 @@
-const renderer = new Renderer()
-const xValues = ["fun", "food", "rent", "bills", "misc"];
-const logos = ["fa-futbol", "fa-utensils", "fa-house", "fa-money-bill-wave", "fa-icons"];
-const barColors = [
-    "#FED130",
-    "#FE3F61",
-    "#FD7BD4",
-    "#FEAA36",
-    "#00C9E9"
-];
 
 function renderAll() {
     const expenses = $.get("/expenses")
-    const groups = xValues.map(group => $.get("/expenses/" + group + "?total=true"))
+    const groups = categories.map(group => $.get("/expenses/" + group.toLowerCase() + "?total=true"))
     groups.push(expenses)
     Promise.all(groups).then((results) => {
-        let [fun, food, rent, bills, misc, expences] = results
-        const yValues = [fun.total, food.total, rent.total, bills.total, misc.total];
-        expences.total = yValues.reduce((a, b) => a + b, 0).toFixed(2)
-        expences.groups = xValues
-        expences.maxGroup = getThreeMaxGroups(yValues,xValues)
-        renderer.renderExpenses(expences)
-        console.log(expences)
-        new Chart("myChart", {
-            type: "doughnut",
-            data: {
-                labels: xValues,
-                datasets: [{
-                    backgroundColor: barColors,
-                    data: yValues
-                }]
-            },
-            options: {
-                title: {
-                    display: true,
-                    text: "Expenses"
-                }
-            }
-        });
-        renderer.renderAddExpense({ groups: xValues })
-
+        rendererHelper.renderResult(results)      
     })
 }
 
@@ -49,100 +15,36 @@ function filterDates() {
     let totalQuery = "?total=true"
     if (d1 != "") {
         url += "?d1=" + d1
-        totalQuery += "&d1="+d1
+        totalQuery += "&d1=" + d1
         if (d2 != "") {
             url += "&d2=" + d2
-            totalQuery += "&d2="+d2
+            totalQuery += "&d2=" + d2
         }
     }
-    console.log(url)
     const expenses = $.get(url)
-    const groups = xValues.map(group => $.get("/expenses/" + group + totalQuery ))
+    const groups = categories.map(group => $.get("/expenses/" + group.toLowerCase() + totalQuery))
     groups.push(expenses)
     Promise.all(groups).then((results) => {
-        let [fun, food, rent, bills, misc, expences] = results
-        const yValues = [fun.total, food.total, rent.total, bills.total, misc.total];
-        expences.total = yValues.reduce((a, b) => a + b, 0).toFixed(2)
-        expences.groups = xValues
-        expences.maxGroup = getThreeMaxGroups(yValues,xValues)
-        console.log(expences)
-        renderer.renderExpenses(expences)
-        new Chart("myChart", {
-            type: "doughnut",
-            data: {
-                labels: xValues,
-                datasets: [{
-                    backgroundColor: barColors,
-                    data: yValues
-                }]
-            },
-            options: {
-                title: {
-                    display: true,
-                    text: "Expenses"
-                }
-            }
-        });
-        renderer.renderAddExpense({ groups: xValues })
-
+        rendererHelper.renderResult(results)
     })
 
 }
 function filterGroup() {
-    const group = $("#group-filter").find(":selected").text()
-    let url = "/expenses/"+group
-    console.log(url)
+    const group = $("#group-filter").find(":selected").text().toLowerCase()
+    let url = "/expenses/" + group
     let totalQuery = "?total=true"
     const expenses = $.get(url)
-    const groups = $.get("/expenses/" + group + totalQuery )
-    Promise.all([groups,expenses]).then((results) => {
-        console.log("Oppop")
-        let [groups, expences] = results
-        const yValues = [groups.total];
-        expences.total = groups.total.toFixed(2)
-        const icon = [logos[xValues.findIndex(c=> c === group)]]
-        expences.groups = [group]
-        expences.maxGroup = getThreeMaxGroups(yValues,[group],[icon])
-        console.log(expences)
-        renderer.renderExpenses(expences)
+    const groups = $.get("/expenses/" + group + totalQuery)
+    Promise.all([groups, expenses]).then((results) => {
+        rendererHelper.renderGroup(results, group)
         
-        new Chart("myChart", {
-            type: "doughnut",
-            data: {
-                labels: [group],
-                datasets: [{
-                    backgroundColor: barColors,
-                    data: yValues
-                }]
-            },
-            options: {
-                title: {
-                    display: true,
-                    text: "Expenses"
-                }
-            }
-        });
-        renderer.renderAddExpense({ groups: xValues })
 
     })
-   
+
 
 }
 
-function getThreeMaxGroups(groupTotal, groupName, icons = logos){
-    maxGroups =[]
-    
-    for (i in groupTotal){
-        const group = {total:groupTotal[i].toFixed(2), name:groupName[i], icon:icons[i]}
-        maxGroups.push(group)
-    }
-    maxGroups.sort((a, b) => {
-        return a.total - b.total;
-    });
-    console.log(maxGroups)
-    console.log(maxGroups.slice(0,3))
-    return maxGroups.slice(0,3)
-}
+
 
 function addExpense() {
     const date = $("#date").val();
@@ -156,10 +58,23 @@ function addExpense() {
     else {
         expense = { date, amount, item, group }
     }
+    const modalTitle = $(".modal-title")
+    const modalBody = $(".modal-body")
+    const modalFooter = $(".modal-footer")
     $.post("/expense", expense).then((result) => {
-
-
+        modalTitle.text("Success")
+        modalBody.empty()
+        modalBody.append($(`<p>${result.result}</p>`))
+        modalFooter.empty()
+        modalFooter.append(closeButton)
     })
+        .catch((err) => {
+            modalTitle.text("Error")
+            modalBody.empty()
+            modalBody.append($(`<p>This is an error, nothing was added!</p>`))
+            modalFooter.empty()
+            modalFooter.append(closeButton)
+        })
 }
 renderAll()
 

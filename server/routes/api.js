@@ -87,6 +87,9 @@ router.post('/expense', function (req, res) {
     ExpensesController.addExpense(expense).then((result) => {
         res.status(202).send(result)
     })
+    .catch((err)=>{
+        res.status(err.status).send("Errors")
+    })
 })
 
 router.put('/update/:group1/:group2', function (req, res) {
@@ -96,13 +99,18 @@ router.put('/update/:group1/:group2', function (req, res) {
         .then((result) => {
             res.status(202).send(result)
         })
-
+        .catch((err)=>{
+            res.status(err.status).send("Errors")
+        })
 })
 
 router.get('/regenerate', function (req, res) {
     ExpensesController.deleteAll().then((deleted) => {
         ExpensesController.generateExpenses()
         res.end()
+    })
+    .catch((err)=>{
+        res.status(err.status).send("Errors")
     })
 })
 
